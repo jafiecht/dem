@@ -11,11 +11,14 @@ raw_urls = list(csv.reader(urlfile))[0:]
 urls = [item for sublist in raw_urls for item in sublist]
 
 boundaries = list()
+i = 1
 #Download the file
-for i in range(4):
+for url in urls:
   print(i)
-  tile = requests.get(urls[i], allow_redirects=True)
-  filename = urls[i].rsplit('/', 1)[1]
+  i = i + 1
+
+  tile = requests.get(url, allow_redirects=True)
+  filename = url.rsplit('/', 1)[1]
   outfile = open(filename, 'wb')
   outfile.write(tile.content)
   outfile.close()
@@ -25,14 +28,13 @@ for i in range(4):
   info = json.loads(raster_info.decode('utf8'))
   boundary = info["wgs84Extent"]["coordinates"][0]
 
-  boundaries.append([urls[i], boundary])
+  boundaries.append([url, boundary])
+  
+  subprocess.call('rm ' + filename, shell=True)
 
 #Write the urls out
-with open('randolph_boundaries', 'w') as csvfile:
+with open('randolph_boundaries.csv', 'w') as csvfile:
   writer = csv.writer(csvfile)
   writer.writerows(boundaries)
 csvfile.close()
 
-
-print(boundaries)
-print(boundaries[1])
